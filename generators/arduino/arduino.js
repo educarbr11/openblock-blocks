@@ -23,15 +23,28 @@ goog.provide('Blockly.Arduino.arduino');
 goog.require('Blockly.Arduino');
 
 
+Blockly.Arduino.getPinInputCode = function(block, name, fallback) {
+  var code = Blockly.Arduino.valueToCode(block, name, Blockly.Arduino.ORDER_ATOMIC);
+  if (!code) {
+    return fallback;
+  }
+  code = String(code).trim();
+  if ((code.charAt(0) === '"' && code.charAt(code.length - 1) === '"') ||
+      (code.charAt(0) === "'" && code.charAt(code.length - 1) === "'")) {
+    code = code.substring(1, code.length - 1);
+  }
+  return code || fallback;
+};
+
 Blockly.Arduino['arduino_pin_setPinMode'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.getPinInputCode(block, 'PIN', '0');
   var arg1 = block.getFieldValue('MODE') || 'INPUT';
   var code = "pinMode(" + arg0 + ", " + arg1 + ");\n";
   return code;
 };
 
 Blockly.Arduino['arduino_pin_setDigitalOutput'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.getPinInputCode(block, 'PIN', '0');
   var arg1 = Blockly.Arduino.valueToCode(block, 'LEVEL', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 'LOW';
   var code = "digitalWrite(" + arg0 + ", " + arg1 + ");\n";
   return code;
@@ -43,26 +56,26 @@ Blockly.Arduino['arduino_pin_menu_level'] = function(block) {
 };
 
 Blockly.Arduino['arduino_pin_setPwmOutput'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.getPinInputCode(block, 'PIN', '3');
   var arg1 = Blockly.Arduino.valueToCode(block, 'OUT', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 0;
   var code = "analogWrite(" + arg0 + ", " + arg1 + ");\n";
   return code;
 };
 
 Blockly.Arduino['arduino_pin_readDigitalPin'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.getPinInputCode(block, 'PIN', '0');
   var code = "digitalRead(" + arg0 + ")";
   return [code, Blockly.Arduino.ORDER_ATOMIC];
 };
 
 Blockly.Arduino['arduino_pin_readAnalogPin'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || 'A1';
+  var arg0 = Blockly.Arduino.getPinInputCode(block, 'PIN', '0');
   var code = "analogRead(" + arg0 + ")";
   return [code, Blockly.Arduino.ORDER_ATOMIC];
 };
 
 Blockly.Arduino['arduino_pin_setServoOutput'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || 'A1';
+  var arg0 = Blockly.Arduino.getPinInputCode(block, 'PIN', '3');
   var arg1 = Blockly.Arduino.valueToCode(block, 'OUT', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 0;
 
   Blockly.Arduino.includes_['include_servo'] = '#include <Servo.h>';
@@ -74,7 +87,7 @@ Blockly.Arduino['arduino_pin_setServoOutput'] = function(block) {
 };
 
 Blockly.Arduino['arduino_pin_attachInterrupt'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '2';
+  var arg0 = Blockly.Arduino.getPinInputCode(block, 'PIN', '3');
   var arg1 = block.getFieldValue('MODE') || 'RISING';
 
   var branch = Blockly.Arduino.statementToCode(block, 'SUBSTACK');
@@ -88,7 +101,7 @@ Blockly.Arduino['arduino_pin_attachInterrupt'] = function(block) {
 };
 
 Blockly.Arduino['arduino_pin_detachInterrupt'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '2';
+  var arg0 = Blockly.Arduino.getPinInputCode(block, 'PIN', '3');
 
   var code = 'detachInterrupt(digitalPinToInterrupt(' + arg0 + '));\n';
   return code;
@@ -304,5 +317,4 @@ Blockly.Arduino['arduino_display_lightPixelAt'] = function(block) {
   var code = 'frame[' + x + '][' + y + '] = ' + sta + ';\nmatrix.renderBitmap(frame, 8, 12);\n';
   return code;
 };
-
 
