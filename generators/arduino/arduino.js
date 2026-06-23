@@ -78,6 +78,76 @@ Blockly.Arduino['arduino_pin_setServoOutput'] = function(block) {
   return code;
 };
 
+Blockly.Arduino['arduino_pin_menu_note'] = function(block) {
+  var code = block.getFieldValue('note') || '262';
+  return [code, Blockly.Arduino.ORDER_ATOMIC];
+};
+
+Blockly.Arduino['arduino_pin_menu_beatTime'] = function(block) {
+  var code = block.getFieldValue('beatTime') || '0.5';
+  return [code, Blockly.Arduino.ORDER_ATOMIC];
+};
+
+Blockly.Arduino['arduino_pin_menu_distanceUnit'] = function(block) {
+  var unit = block.getFieldValue('distanceUnit') || 'CM';
+  var code = unit === 'INC' ? '1' : '0';
+  return [code, Blockly.Arduino.ORDER_ATOMIC];
+};
+
+Blockly.Arduino['arduino_pin_playToneForSeconds'] = function(block) {
+  var pin = Blockly.Arduino.pinToCode_(block, 'PIN', '9');
+  var note = Blockly.Arduino.valueToCode(block, 'NOTE', Blockly.Arduino.ORDER_ATOMIC) || '262';
+  var seconds = Blockly.Arduino.valueToCode(block, 'SECONDS', Blockly.Arduino.ORDER_ATOMIC) || '0.5';
+  var code = 'tone(' + pin + ', ' + note + ');\n';
+  code += 'delay((unsigned long)((' + seconds + ') * 1000));\n';
+  code += 'noTone(' + pin + ');\n';
+  return code;
+};
+
+Blockly.Arduino['arduino_pin_playToneForBeat'] = function(block) {
+  var pin = Blockly.Arduino.pinToCode_(block, 'PIN', '9');
+  var note = Blockly.Arduino.valueToCode(block, 'NOTE', Blockly.Arduino.ORDER_ATOMIC) || '262';
+  var beat = Blockly.Arduino.valueToCode(block, 'BEAT', Blockly.Arduino.ORDER_ATOMIC) || '0.5';
+  var code = 'tone(' + pin + ', ' + note + ');\n';
+  code += 'delay((unsigned long)((' + beat + ') * 500));\n';
+  code += 'noTone(' + pin + ');\n';
+  return code;
+};
+
+Blockly.Arduino['arduino_pin_stopTone'] = function(block) {
+  var pin = Blockly.Arduino.pinToCode_(block, 'PIN', '9');
+  return 'noTone(' + pin + ');\n';
+};
+
+Blockly.Arduino['arduino_pin_readUltrasonicDistance'] = function(block) {
+  var trig = Blockly.Arduino.pinToCode_(block, 'TRIG', '9');
+  var echo = Blockly.Arduino.pinToCode_(block, 'ECHO', '10');
+  var unit = Blockly.Arduino.valueToCode(block, 'UNIT', Blockly.Arduino.ORDER_ATOMIC);
+  if (!unit) {
+    unit = (block.getFieldValue('UNIT') || 'CM') === 'INC' ? '1' : '0';
+  }
+
+  Blockly.Arduino.definitions_['dogoblock_read_ultrasonic'] =
+    'float dogoblockReadUltrasonic(long trigPin, long echoPin, int unit) {\n' +
+    '  pinMode(trigPin, OUTPUT);\n' +
+    '  digitalWrite(trigPin, LOW);\n' +
+    '  delayMicroseconds(2);\n' +
+    '  digitalWrite(trigPin, HIGH);\n' +
+    '  delayMicroseconds(10);\n' +
+    '  digitalWrite(trigPin, LOW);\n' +
+    '  pinMode(echoPin, INPUT);\n' +
+    '  unsigned long duration = pulseIn(echoPin, HIGH, 30000UL);\n' +
+    '  float cm = duration / 58.0;\n' +
+    '  if (unit == 1) {\n' +
+    '    return cm / 2.54;\n' +
+    '  }\n' +
+    '  return cm;\n' +
+    '}\n';
+
+  var code = 'dogoblockReadUltrasonic(' + trig + ', ' + echo + ', ' + unit + ')';
+  return [code, Blockly.Arduino.ORDER_ATOMIC];
+};
+
 Blockly.Arduino['arduino_pin_attachInterrupt'] = function(block) {
   var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '2');
   var arg1 = block.getFieldValue('MODE') || 'RISING';
@@ -309,4 +379,3 @@ Blockly.Arduino['arduino_display_lightPixelAt'] = function(block) {
   var code = 'frame[' + x + '][' + y + '] = ' + sta + ';\nmatrix.renderBitmap(frame, 8, 12);\n';
   return code;
 };
-
