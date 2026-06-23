@@ -24,7 +24,7 @@ goog.require('Blockly.Arduino');
 
 
 Blockly.Arduino['arduino_pin_k210SetPwmOutput'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var arg1 = Blockly.Arduino.valueToCode(block, 'OUT', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 0;
 
   Blockly.Arduino.setups_['k210SetPwmOutput'] = 'analogWriteFrequency(490);';

@@ -24,7 +24,7 @@ goog.require('Blockly.Arduino');
 
 
 Blockly.Arduino['arduino_pin_esp32SetPwmOutput'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var arg1 = Blockly.Arduino.valueToCode(block, 'OUT', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 0;
 
   Blockly.Arduino.includes_['esp32SetPwmOutput'] = '#include <ESP32PWM.h>';
@@ -42,20 +42,20 @@ Blockly.Arduino['arduino_pin_esp32SetPwmOutput'] = function(block) {
 };
 
 Blockly.Arduino['arduino_pin_esp32SetDACOutput'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var arg1 = Blockly.Arduino.valueToCode(block, 'OUT', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 0;
   var code = 'dacWrite(' + arg0 + ', ' + arg1 + ');\n';
   return code;
 };
 
 Blockly.Arduino['arduino_pin_esp32ReadTouchPin'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var code = 'touchRead(' + arg0 + ')';
   return [code, Blockly.Arduino.ORDER_ATOMIC];
 };
 
 Blockly.Arduino['arduino_pin_esp32SetServoOutput'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var arg1 = Blockly.Arduino.valueToCode(block, 'OUT', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 0;
 
   Blockly.Arduino.includes_['esp32SetServoOutput'] = '#include <ESP32Servo.h>';
@@ -70,7 +70,7 @@ Blockly.Arduino['arduino_pin_esp32SetServoOutput'] = function(block) {
 };
 
 Blockly.Arduino['arduino_pin_esp32AttachInterrupt'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var arg1 = block.getFieldValue('MODE') || 'RISING';
 
   var branch = Blockly.Arduino.statementToCode(block, 'SUBSTACK');
@@ -84,7 +84,7 @@ Blockly.Arduino['arduino_pin_esp32AttachInterrupt'] = function(block) {
 };
 
 Blockly.Arduino['arduino_pin_esp32DetachInterrupt'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '0';
+  var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
 
   var code = 'detachInterrupt(' + arg0 + ');\n';
   return code;

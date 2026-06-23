@@ -23,7 +23,7 @@ goog.provide('Blockly.Arduino.esp8266');
 goog.require('Blockly.Arduino');
 
 Blockly.Arduino['arduino_pin_esp8266AttachInterrupt'] = function(block) {
-  var arg0 = block.getFieldValue('PIN') || '2';
+  var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '2');
   var arg1 = block.getFieldValue('MODE') || 'RISING';
 
   var branch = Blockly.Arduino.statementToCode(block, 'SUBSTACK');
