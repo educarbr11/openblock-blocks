@@ -28,6 +28,36 @@ Blockly.Arduino.pinToCode_ = function(block, name, fallback) {
       fallback;
 };
 
+Blockly.Arduino.fieldValueFromNames_ = function(block, names, fallback) {
+  for (var i = 0; i < names.length; i++) {
+    var value = block.getFieldValue(names[i]);
+    if (value !== null && value !== undefined) {
+      return value;
+    }
+  }
+  return fallback;
+};
+
+Blockly.Arduino['arduino_pin_menu_pins'] = function(block) {
+  var code = Blockly.Arduino.fieldValueFromNames_(block, ['pins', 'PIN'], '0');
+  return [code, Blockly.Arduino.ORDER_ATOMIC];
+};
+
+Blockly.Arduino['arduino_pin_menu_analogPins'] = function(block) {
+  var code = Blockly.Arduino.fieldValueFromNames_(block, ['analogPins', 'PIN'], 'A0');
+  return [code, Blockly.Arduino.ORDER_ATOMIC];
+};
+
+Blockly.Arduino['arduino_pin_menu_pwmPins'] = function(block) {
+  var code = Blockly.Arduino.fieldValueFromNames_(block, ['pwmPins', 'PIN'], '3');
+  return [code, Blockly.Arduino.ORDER_ATOMIC];
+};
+
+Blockly.Arduino['arduino_pin_menu_interruptPins'] = function(block) {
+  var code = Blockly.Arduino.fieldValueFromNames_(block, ['interruptPins', 'PIN'], '2');
+  return [code, Blockly.Arduino.ORDER_ATOMIC];
+};
+
 Blockly.Arduino['arduino_pin_setPinMode'] = function(block) {
   var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var arg1 = block.getFieldValue('MODE') || 'INPUT';
@@ -38,8 +68,17 @@ Blockly.Arduino['arduino_pin_setPinMode'] = function(block) {
 Blockly.Arduino['arduino_pin_setDigitalOutput'] = function(block) {
   var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var arg1 = Blockly.Arduino.valueToCode(block, 'LEVEL', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 'LOW';
-  var code = "digitalWrite(" + arg0 + ", " + arg1 + ");\n";
-  return code;
+  var pinIsReporter = Boolean(block.getInputTargetBlock && block.getInputTargetBlock('PIN'));
+  if (pinIsReporter) {
+    Blockly.Arduino.customFunctions_['dogoblock_digital_write'] =
+      'void dogoblockDigitalWrite(int pin, int value) {\n' +
+      '  pinMode(pin, OUTPUT);\n' +
+      '  digitalWrite(pin, value);\n' +
+      '}\n';
+    return "dogoblockDigitalWrite(" + arg0 + ", " + arg1 + ");\n";
+  }
+  Blockly.Arduino.setups_['setups_pin_mode_output_' + arg0] = "pinMode(" + arg0 + ", OUTPUT);";
+  return "digitalWrite(" + arg0 + ", " + arg1 + ");\n";
 };
 
 Blockly.Arduino['arduino_pin_menu_level'] = function(block) {
