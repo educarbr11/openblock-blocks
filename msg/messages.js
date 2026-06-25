@@ -95,6 +95,7 @@ Blockly.Msg.EVENT_WHENGREATERTHAN_LOUDNESS = 'loudness';
 Blockly.Msg.EVENT_BROADCAST = 'broadcast %1';
 Blockly.Msg.EVENT_BROADCASTANDWAIT = 'broadcast %1 and wait';
 Blockly.Msg.EVENT_WHENKEYPRESSED = 'when %1 key pressed';
+Blockly.Msg.EVENT_WHENKEYRELEASED = 'when %1 key released';
 Blockly.Msg.EVENT_WHENMICROBITGESTURE_SHAKEN = 'shaken';
 Blockly.Msg.EVENT_WHENMICROBITGESTURE_TILTEDUPWARD = 'tilted upward';
 Blockly.Msg.EVENT_WHENMICROBITGESTURE_TILTEDDOWNWARD = 'tilted downward';

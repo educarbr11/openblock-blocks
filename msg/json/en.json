@@ -56,6 +56,7 @@
     "EVENT_BROADCAST": "broadcast %1",
     "EVENT_BROADCASTANDWAIT": "broadcast %1 and wait",
     "EVENT_WHENKEYPRESSED": "when %1 key pressed",
+    "EVENT_WHENKEYRELEASED": "when %1 key released",
     "EVENT_WHENMICROBITGESTURE_SHAKEN": "shaken",
     "EVENT_WHENMICROBITGESTURE_TILTEDUPWARD": "tilted upward",
     "EVENT_WHENMICROBITGESTURE_TILTEDDOWNWARD": "tilted downward",
