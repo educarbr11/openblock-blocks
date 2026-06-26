@@ -210,14 +210,14 @@ Blockly.Arduino['arduino_pin_detachInterrupt'] = function(block) {
 
 Blockly.Arduino['arduino_serial_serialBegin'] = function(block) {
   var arg0 = block.getFieldValue('VALUE') || '9600';
-
-  var code = 'Serial.begin(' + arg0 + ');\n';
-  return code;
+  Blockly.Arduino.setups_['setup_serial_begin'] = 'Serial.begin(' + arg0 + ');';
+  return '';
 };
 
 Blockly.Arduino['arduino_serial_serialPrint'] = function(block) {
   var arg0 = Blockly.Arduino.valueToCode(block, 'VALUE', Blockly.Arduino.ORDER_UNARY_POSTFIX) || '';
   var eol = block.getFieldValue('EOL') || 'warp';
+  Blockly.Arduino.setups_['setup_serial_begin'] = Blockly.Arduino.setups_['setup_serial_begin'] || 'Serial.begin(9600);';
   var code = '';
   if (eol === 'warp') {
     code = 'Serial.println(' + arg0 + ');\n';
