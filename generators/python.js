@@ -278,16 +278,25 @@ Blockly.Python.scrub_ = function(block, code) {
   // mean's it is in a function or it is custom function, add indent
   // at start of every line.
   if (block.getSurroundParent() === null && code !== "" && block.previousConnection !== null
-    && block.getTopStackBlock().type !== 'event_whenmicrobitbegin') {
+    && block.getTopStackBlock().type !== 'event_whenmicrobitbegin'
+    && block.getTopStackBlock().type !== 'microbit_whenMicrobitBegin'
+    && !(typeof block.getTopStackBlock().type === 'string' && (
+      block.getTopStackBlock().type.indexOf('microbit_') === 0 ||
+      block.getTopStackBlock().type.indexOf('pin_') === 0 ||
+      block.getTopStackBlock().type.indexOf('display_') === 0 ||
+      block.getTopStackBlock().type.indexOf('sensor_') === 0 ||
+      block.getTopStackBlock().type.indexOf('wireless_') === 0 ||
+      block.getTopStackBlock().type.indexOf('console_') === 0
+    ))) {
     // Add indent at start except custom function
     if (block.type !== 'procedures_definition'
       && block.type !== 'procedures_prototype') {
-      codeWithIndent = Blockly.Arduino.INDENT + codeWithIndent;
+      codeWithIndent = Blockly.Python.INDENT + codeWithIndent;
       if (commentCode !== '') {
-        commentCode = Blockly.Arduino.INDENT + commentCode;
+        commentCode = Blockly.Python.INDENT + commentCode;
       }
     }
-    codeWithIndent = codeWithIndent.replace(/\n/g, "\n" + Blockly.Arduino.INDENT);
+    codeWithIndent = codeWithIndent.replace(/\n/g, "\n" + Blockly.Python.INDENT);
     // Delet final indent
     codeWithIndent = codeWithIndent.slice(0, codeWithIndent.length - 2);
   }
@@ -330,6 +339,31 @@ Blockly.Python.quote_ = function(string) {
  * @private
  */
 Blockly.Python.check_ = function(block) {
+  var topBlock = block.getTopStackBlock && block.getTopStackBlock();
+  if (topBlock && (
+    topBlock.type === 'event_whenmicrobitbegin' ||
+    topBlock.type === 'event_whenmicrobitbuttonpressed' ||
+    topBlock.type === 'event_whenmicrobitpinbeingtouched' ||
+    topBlock.type === 'event_whenmicrobitgesture' ||
+    topBlock.type === 'microbit_whenMicrobitBegin' ||
+    topBlock.type === 'microbit_whenButtonPressed' ||
+    topBlock.type === 'microbit_whenPinTouched' ||
+    topBlock.type === 'microbit_whenGesture'
+  )) {
+    return true;
+  }
+  if (block.previousConnection !== null && topBlock &&
+    typeof topBlock.type === 'string' && (
+      topBlock.type.indexOf('microbit_') === 0 ||
+      topBlock.type.indexOf('pin_') === 0 ||
+      topBlock.type.indexOf('display_') === 0 ||
+      topBlock.type.indexOf('sensor_') === 0 ||
+      topBlock.type.indexOf('wireless_') === 0 ||
+      topBlock.type.indexOf('console_') === 0
+    )) {
+    return true;
+  }
+
   // If a block has no previousConnection means it is a hat block
   // or a string/nubmer block or a bool block.
 
