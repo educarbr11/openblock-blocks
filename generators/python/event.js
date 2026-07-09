@@ -23,6 +23,29 @@ goog.provide('Blockly.Python.event');
 goog.require('Blockly.Python');
 
 
+Blockly.Python.microbitIndentedEventBody_ = Blockly.Python.microbitIndentedEventBody_ || function(block) {
+  var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
+  if (!nextBlock) {
+    return Blockly.Python.INDENT + "pass\n";
+  }
+
+  var variablesName = [];
+  for (var x in Blockly.Python.variables_) {
+    variablesName.push(Blockly.Python.variables_[x].slice(0, Blockly.Python.variables_[x].indexOf('=') - 1));
+  }
+
+  var code = '';
+  if (variablesName.length !== 0) {
+    code += Blockly.Python.INDENT + "global " + variablesName.join(', ') + "\n";
+  }
+
+  var body = Blockly.Python.blockToCode(nextBlock);
+  if (!body) {
+    body = "pass\n";
+  }
+  return code + Blockly.Python.prefixLines(body, Blockly.Python.INDENT);
+};
+
 Blockly.Python['event_whenmicrobitbegin'] = function(block) {
   Blockly.Python.imports_["microbit"] = "from microbit import *";
 
@@ -52,22 +75,7 @@ Blockly.Python['event_whenmicrobitbuttonpressed'] = function(block) {
   Blockly.Python.loops_["event_whenmicrobitbegin" + key + i] = "if button_" + key + ".is_pressed():\n" +
     Blockly.Python.INDENT + Blockly.Python.INDENT + "on_button_" + key + i + "()";
 
-  var code = "def on_button_" + key + i + "():\n";
-
-  var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-  if (!nextBlock) {
-    code += Blockly.Python.INDENT + "pass\n";
-  } else {
-    var variablesName = [];
-    for (var x in Blockly.Python.variables_) {
-      variablesName.push(Blockly.Python.variables_[x].slice(0, Blockly.Python.variables_[x].indexOf('=') - 1));
-    }
-    if (variablesName.length !== 0) {
-      code += Blockly.Python.INDENT + "global " + variablesName.join(', ') + "\n";
-    }
-
-    code = Blockly.Python.scrub_(block, code);
-  }
+  var code = "def on_button_" + key + i + "():\n" + Blockly.Python.microbitIndentedEventBody_(block);
 
   Blockly.Python.libraries_["def on_button_" + key + i] = code;
   return null;
@@ -90,21 +98,7 @@ Blockly.Python['event_whenmicrobitpinbeingtouched'] = function(block) {
   Blockly.Python.loops_["event_whenmicrobitpinbeingtouched" + pin + i] = "if pin" + pin + ".is_pressed():\n" +
     Blockly.Python.INDENT + Blockly.Python.INDENT + "on_pin" + pin + i + "()";
 
-  var code = "def on_pin" + pin + i + "():\n";
-  var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-  if (!nextBlock) {
-    code += Blockly.Python.INDENT + "pass\n";
-  } else {
-    var variablesName = [];
-    for (var x in Blockly.Python.variables_) {
-      variablesName.push(Blockly.Python.variables_[x].slice(0, Blockly.Python.variables_[x].indexOf('=') - 1));
-    }
-    if (variablesName.length !== 0) {
-      code += Blockly.Python.INDENT + "global " + variablesName.join(', ') + "\n";
-    }
-
-    code = Blockly.Python.scrub_(block, code);
-  }
+  var code = "def on_pin" + pin + i + "():\n" + Blockly.Python.microbitIndentedEventBody_(block);
 
   Blockly.Python.libraries_["def on_pin" + pin + i] = code;
   return null;
@@ -127,21 +121,7 @@ Blockly.Python['event_whenmicrobitgesture'] = function(block) {
   Blockly.Python.loops_["event_whenmicrobitgesture" + sta + i] = "if accelerometer.was_gesture('" + sta + "'):\n" +
     Blockly.Python.INDENT + Blockly.Python.INDENT + "on_" + sta + i + "()";
 
-  var code = "def on_" + sta + i + "():\n";
-  var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-  if (!nextBlock) {
-    code += Blockly.Python.INDENT + "pass\n";
-  } else {
-    var variablesName = [];
-    for (var x in Blockly.Python.variables_) {
-      variablesName.push(Blockly.Python.variables_[x].slice(0, Blockly.Python.variables_[x].indexOf('=') - 1));
-    }
-    if (variablesName.length !== 0) {
-      code += Blockly.Python.INDENT + "global " + variablesName.join(', ') + "\n";
-    }
-
-    code = Blockly.Python.scrub_(block, code);
-  }
+  var code = "def on_" + sta + i + "():\n" + Blockly.Python.microbitIndentedEventBody_(block);
 
   Blockly.Python.libraries_["def on_" + sta + i] = code;
   return null;

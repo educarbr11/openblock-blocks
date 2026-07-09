@@ -45,16 +45,23 @@ Blockly.Python.microbitGlobalVariables_ = Blockly.Python.microbitGlobalVariables
   return variablesName.length !== 0 ? Blockly.Python.INDENT + "global " + variablesName.join(', ') + "\n" : '';
 };
 
-Blockly.Python.microbitEventFunction_ = Blockly.Python.microbitEventFunction_ || function(block, functionName) {
-  var code = "def " + functionName + "():\n";
+Blockly.Python.microbitIndentedEventBody_ = Blockly.Python.microbitIndentedEventBody_ || function(block) {
   var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
   if (!nextBlock) {
-    code += Blockly.Python.INDENT + "pass\n";
-  } else {
-    code += Blockly.Python.microbitGlobalVariables_();
-    code = Blockly.Python.scrub_(block, code);
+    return Blockly.Python.INDENT + "pass\n";
   }
-  return code;
+
+  var code = Blockly.Python.microbitGlobalVariables_();
+  var body = Blockly.Python.blockToCode(nextBlock);
+  if (!body) {
+    body = "pass\n";
+  }
+  return code + Blockly.Python.prefixLines(body, Blockly.Python.INDENT);
+};
+
+Blockly.Python.microbitEventFunction_ = Blockly.Python.microbitEventFunction_ || function(block, functionName) {
+  var code = "def " + functionName + "():\n";
+  return code + Blockly.Python.microbitIndentedEventBody_(block);
 };
 
 Blockly.Python['microbit_pin_setDigitalOutput'] = function(block) {
