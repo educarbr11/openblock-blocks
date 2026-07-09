@@ -104,12 +104,27 @@ Blockly.Python['microbit_pin_pinTouched'] = function(block) {
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
+Blockly.Python.microbitImageValue_ = Blockly.Python.microbitImageValue_ || function(value) {
+  value = String(value || '0');
+  if ((value.charAt(0) === "'" && value.charAt(value.length - 1) === "'") ||
+      (value.charAt(0) === '"' && value.charAt(value.length - 1) === '"')) {
+    value = value.slice(1, -1);
+  }
+  value = value.replace(/[^01]/g, '');
+  if (value.length < 25) {
+    value = (value + '0000000000000000000000000').slice(0, 25);
+  } else if (value.length > 25) {
+    value = value.slice(0, 25);
+  }
+  value = value.replace(/1/g, '9');
+  return value.slice(0, 5) + ':' + value.slice(5, 10) + ':' + value.slice(10, 15) +
+    ':' + value.slice(15, 20) + ':' + value.slice(20, 25);
+};
+
 Blockly.Python['microbit_display_showImage'] = function(block) {
   var arg0 = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_ATOMIC) || '0';
 
-  arg0 = arg0.replace(/1/g, '9');
-  arg0 = arg0.slice(0, 5) + ':' + arg0.slice(5, 10) + ':' + arg0.slice(10, 15)
-    + ':' + arg0.slice(15, 20) + ':' + arg0.slice(20, 25);
+  arg0 = Blockly.Python.microbitImageValue_(arg0);
   var code = "display.show(Image('" + arg0 + "'))\n";
   return code;
 };
@@ -118,9 +133,7 @@ Blockly.Python['microbit_display_showImageUntil'] = function(block) {
   var arg0 = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_ATOMIC) || '0';
   var arg1 = Blockly.Python.valueToCode(block, 'TIME', Blockly.Python.ORDER_ATOMIC) || '0';
 
-  arg0 = arg0.replace(/1/g, '9');
-  arg0 = arg0.slice(0, 5) + ':' + arg0.slice(5, 10) + ':' + arg0.slice(10, 15)
-    + ':' + arg0.slice(15, 20) + ':' + arg0.slice(20, 25);
+  arg0 = Blockly.Python.microbitImageValue_(arg0);
   var code = "display.show(Image('" + arg0 + "'))\n" + "sleep(float(" + arg1 + ") * 1000)\n" + "display.clear()\n";
   return code;
 };
