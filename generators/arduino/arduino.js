@@ -68,15 +68,6 @@ Blockly.Arduino['arduino_pin_setPinMode'] = function(block) {
 Blockly.Arduino['arduino_pin_setDigitalOutput'] = function(block) {
   var arg0 = Blockly.Arduino.pinToCode_(block, 'PIN', '0');
   var arg1 = Blockly.Arduino.valueToCode(block, 'LEVEL', Blockly.Arduino.ORDER_UNARY_POSTFIX) || 'LOW';
-  var pinIsReporter = Boolean(block.getInputTargetBlock && block.getInputTargetBlock('PIN'));
-  if (pinIsReporter) {
-    Blockly.Arduino.customFunctions_['dogoblock_digital_write'] =
-      'void dogoblockDigitalWrite(int pin, int value) {\n' +
-      '  pinMode(pin, OUTPUT);\n' +
-      '  digitalWrite(pin, value);\n' +
-      '}\n';
-    return "dogoblockDigitalWrite(" + arg0 + ", " + arg1 + ");\n";
-  }
   Blockly.Arduino.setups_['setups_pin_mode_output_' + arg0] = "pinMode(" + arg0 + ", OUTPUT);";
   return "digitalWrite(" + arg0 + ", " + arg1 + ");\n";
 };
