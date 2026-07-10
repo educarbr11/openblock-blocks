@@ -83,6 +83,18 @@ Blockly.Python.microbitEventFunction_ = Blockly.Python.microbitEventFunction_ ||
   return code + Blockly.Python.microbitIndentedEventBody_(block);
 };
 
+Blockly.Python.microbitHasEventBody_ = Blockly.Python.microbitHasEventBody_ || function(block) {
+  return Boolean(block && block.nextConnection && block.nextConnection.targetBlock());
+};
+
+Blockly.Python.microbitEventSuffix_ = Blockly.Python.microbitEventSuffix_ || function(key) {
+  var suffix = '';
+  while (Blockly.Python.loops_[key + suffix]) {
+    suffix = suffix === '' ? 1 : suffix + 1;
+  }
+  return suffix;
+};
+
 Blockly.Python['microbit_pin_setDigitalOutput'] = function(block) {
   var pin = Blockly.Python.microbitValueOrField_(block, 'PIN', ['pins'], '0');
   var level = Blockly.Python.microbitDigitalLevelCode_(block);
@@ -300,65 +312,61 @@ Blockly.Python['microbit_console_consolePrint'] = function(block) {
 };
 
 Blockly.Python['microbit_whenMicrobitBegin'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
   Blockly.Python.imports_["microbit"] = "from microbit import *";
-
-  var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-  if (!nextBlock) {
-    return "pass\n";
-  }
   return "";
 };
 
 Blockly.Python['microbit_whenButtonPressed'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
   Blockly.Python.imports_["microbit"] = "from microbit import *";
 
   var key = Blockly.Python.microbitValueOrField_(block, 'KEY', ['keys'], 'a');
-  var i = '';
-  while (Blockly.Python.loops_["microbit_whenButtonPressed" + key + i]) {
-    i = i === '' ? 1 : i + 1;
-  }
+  var loopKey = "microbit_whenButtonPressed" + key;
+  var i = Blockly.Python.microbitEventSuffix_(loopKey);
+  var functionName = "on_button_" + key + i;
 
-  Blockly.Python.loops_["microbit_whenButtonPressed" + key + i] = "if button_" + key + ".is_pressed():\n" +
-    Blockly.Python.INDENT + Blockly.Python.INDENT + "on_button_" + key + i + "()";
+  Blockly.Python.loops_[loopKey + i] = "if button_" + key + ".was_pressed():\n" +
+    Blockly.Python.INDENT + Blockly.Python.INDENT + functionName + "()";
 
-  Blockly.Python.libraries_["def on_button_" + key + i] =
-    Blockly.Python.microbitEventFunction_(block, "on_button_" + key + i);
+  Blockly.Python.libraries_["def " + functionName] =
+    Blockly.Python.microbitEventFunction_(block, functionName);
   return null;
 };
 
 Blockly.Python['microbit_whenPinTouched'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
   Blockly.Python.imports_["microbit"] = "from microbit import *";
 
   var pin = Blockly.Python.microbitValueOrField_(block, 'PIN', ['touchPins'], '0');
-  var i = '';
-  while (Blockly.Python.loops_["microbit_whenPinTouched" + pin + i]) {
-    i = i === '' ? 1 : i + 1;
-  }
+  var loopKey = "microbit_whenPinTouched" + pin;
+  var i = Blockly.Python.microbitEventSuffix_(loopKey);
+  var functionName = "on_pin" + pin + i;
 
-  Blockly.Python.loops_["microbit_whenPinTouched" + pin + i] = "if pin" + pin + ".is_touched():\n" +
-    Blockly.Python.INDENT + Blockly.Python.INDENT + "on_pin" + pin + i + "()";
+  Blockly.Python.loops_[loopKey + i] = "if pin" + pin + ".is_touched():\n" +
+    Blockly.Python.INDENT + Blockly.Python.INDENT + functionName + "()";
 
-  Blockly.Python.libraries_["def on_pin" + pin + i] =
-    Blockly.Python.microbitEventFunction_(block, "on_pin" + pin + i);
+  Blockly.Python.libraries_["def " + functionName] =
+    Blockly.Python.microbitEventFunction_(block, functionName);
   return null;
 };
 
 Blockly.Python['microbit_whenGesture'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
   Blockly.Python.imports_["microbit"] = "from microbit import *";
 
   var gesture = Blockly.Python.microbitValueOrField_(block, 'STA', ['gestrues'], 'shake');
   var safeGesture = String(gesture).replace(/[^a-z0-9_]/gi, '_');
-  var i = '';
-  while (Blockly.Python.loops_["microbit_whenGesture" + safeGesture + i]) {
-    i = i === '' ? 1 : i + 1;
-  }
+  var loopKey = "microbit_whenGesture" + safeGesture;
+  var i = Blockly.Python.microbitEventSuffix_(loopKey);
+  var functionName = "on_" + safeGesture + i;
 
-  Blockly.Python.loops_["microbit_whenGesture" + safeGesture + i] =
+  Blockly.Python.loops_[loopKey + i] =
     "if accelerometer.was_gesture('" + gesture + "'):\n" +
-    Blockly.Python.INDENT + Blockly.Python.INDENT + "on_" + safeGesture + i + "()";
+    Blockly.Python.INDENT + Blockly.Python.INDENT + functionName + "()";
 
-  Blockly.Python.libraries_["def on_" + safeGesture + i] =
-    Blockly.Python.microbitEventFunction_(block, "on_" + safeGesture + i);
+  Blockly.Python.libraries_["def " + functionName] =
+    Blockly.Python.microbitEventFunction_(block, functionName);
   return null;
 };
 

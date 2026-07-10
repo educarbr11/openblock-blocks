@@ -22,6 +22,9 @@ goog.provide('Blockly.Python.event');
 
 goog.require('Blockly.Python');
 
+Blockly.Python.microbitHasEventBody_ = Blockly.Python.microbitHasEventBody_ || function(block) {
+  return Boolean(block && block.nextConnection && block.nextConnection.targetBlock());
+};
 
 Blockly.Python.microbitIndentedEventBody_ = Blockly.Python.microbitIndentedEventBody_ || function(block) {
   var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
@@ -47,18 +50,13 @@ Blockly.Python.microbitIndentedEventBody_ = Blockly.Python.microbitIndentedEvent
 };
 
 Blockly.Python['event_whenmicrobitbegin'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
   Blockly.Python.imports_["microbit"] = "from microbit import *";
-
-  var code = "";
-  var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-  if (!nextBlock) {
-    code += "pass\n";
-  }
-
-  return code;
+  return "";
 };
 
 Blockly.Python['event_whenmicrobitbuttonpressed'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
   Blockly.Python.imports_["microbit"] = "from microbit import *";
 
   var key = block.getFieldValue('KEY_OPTION');
@@ -72,7 +70,7 @@ Blockly.Python['event_whenmicrobitbuttonpressed'] = function(block) {
     }
   }
 
-  Blockly.Python.loops_["event_whenmicrobitbegin" + key + i] = "if button_" + key + ".is_pressed():\n" +
+  Blockly.Python.loops_["event_whenmicrobitbegin" + key + i] = "if button_" + key + ".was_pressed():\n" +
     Blockly.Python.INDENT + Blockly.Python.INDENT + "on_button_" + key + i + "()";
 
   var code = "def on_button_" + key + i + "():\n" + Blockly.Python.microbitIndentedEventBody_(block);
@@ -82,6 +80,7 @@ Blockly.Python['event_whenmicrobitbuttonpressed'] = function(block) {
 };
 
 Blockly.Python['event_whenmicrobitpinbeingtouched'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
   Blockly.Python.imports_["microbit"] = "from microbit import *";
 
   var pin = block.getFieldValue('PIN_OPTION');
@@ -105,6 +104,7 @@ Blockly.Python['event_whenmicrobitpinbeingtouched'] = function(block) {
 };
 
 Blockly.Python['event_whenmicrobitgesture'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
   Blockly.Python.imports_["microbit"] = "from microbit import *";
 
   var sta = block.getFieldValue('GESTURE_OPTION');
