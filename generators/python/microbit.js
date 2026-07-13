@@ -221,6 +221,21 @@ Blockly.Python['microbit_sensor_buttonIsPressed'] = function(block) {
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
+Blockly.Python['microbit_sensor_logoIsPressed'] = function() {
+  return ['pin_logo.is_touched()', Blockly.Python.ORDER_ATOMIC];
+};
+
+Blockly.Python['microbit_sensor_soundLevel'] = function() {
+  return ['microphone.sound_level()', Blockly.Python.ORDER_ATOMIC];
+};
+
+Blockly.Python['microbit_sensor_setSoundThreshold'] = function(block) {
+  var event = Blockly.Python.microbitValueOrField_(block, 'EVENT', ['soundEvents'], 'loud');
+  var value = Blockly.Python.microbitNumberCode_(block, 'VALUE', 128);
+  var soundEvent = String(event).toLowerCase() === 'quiet' ? 'QUIET' : 'LOUD';
+  return 'microphone.set_threshold(SoundEvent.' + soundEvent + ', int(' + value + '))\n';
+};
+
 Blockly.Python['microbit_sensor_gestureIsX'] = function(block) {
   var sta = Blockly.Python.microbitValueOrField_(block, 'STA', ['gestrues'], 'shake');
 
@@ -370,6 +385,50 @@ Blockly.Python['microbit_whenGesture'] = function(block) {
   return null;
 };
 
+Blockly.Python['microbit_whenSound'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
+  Blockly.Python.imports_["microbit"] = "from microbit import *";
+
+  var event = Blockly.Python.microbitValueOrField_(block, 'EVENT', ['soundEvents'], 'loud');
+  var soundEvent = String(event).toLowerCase() === 'quiet' ? 'QUIET' : 'LOUD';
+  var loopKey = 'microbit_whenSound' + soundEvent;
+  var i = Blockly.Python.microbitEventSuffix_(loopKey);
+  var functionName = 'on_sound_' + String(event).toLowerCase() + i;
+
+  Blockly.Python.loops_[loopKey + i] = 'if microphone.was_event(SoundEvent.' + soundEvent + '):\n' +
+    Blockly.Python.INDENT + Blockly.Python.INDENT + functionName + '()';
+  Blockly.Python.libraries_['def ' + functionName] =
+    Blockly.Python.microbitEventFunction_(block, functionName);
+  return null;
+};
+
+Blockly.Python['microbit_whenLogo'] = function(block) {
+  if (!Blockly.Python.microbitHasEventBody_(block)) return null;
+  Blockly.Python.imports_["microbit"] = "from microbit import *";
+
+  var event = Blockly.Python.microbitValueOrField_(block, 'EVENT', ['logoEvents'], 'pressed');
+  var loopKey = 'microbit_whenLogo' + event;
+  var i = Blockly.Python.microbitEventSuffix_(loopKey);
+  var functionName = 'on_logo_' + event + i;
+  var stateName = '_dogoblock_logo_' + event + i;
+  var currentName = stateName + '_current';
+  var expected = event === 'released' ? 'False' : 'True';
+
+  Blockly.Python.variables_[stateName] = stateName + ' = pin_logo.is_touched()';
+  Blockly.Python.loops_[loopKey + i] = 'global ' + stateName + '\n' +
+    Blockly.Python.INDENT + currentName + ' = pin_logo.is_touched()\n' +
+    Blockly.Python.INDENT + 'if ' + currentName + ' != ' + stateName + ':\n' +
+    Blockly.Python.INDENT + Blockly.Python.INDENT + stateName + ' = ' + currentName + '\n' +
+    Blockly.Python.INDENT + Blockly.Python.INDENT + 'if ' + currentName + ' == ' + expected + ':\n' +
+    Blockly.Python.INDENT + Blockly.Python.INDENT + Blockly.Python.INDENT + functionName + '()';
+  Blockly.Python.libraries_['def ' + functionName] =
+    Blockly.Python.microbitEventFunction_(block, functionName);
+  return null;
+};
+
+Blockly.Python['microbit_microbit_whenSound'] = Blockly.Python['microbit_whenSound'];
+Blockly.Python['microbit_microbit_whenLogo'] = Blockly.Python['microbit_whenLogo'];
+
 Blockly.Python['microbit_setDigitalOutput'] = Blockly.Python['microbit_pin_setDigitalOutput'];
 Blockly.Python['microbit_setPwmOutput'] = Blockly.Python['microbit_pin_setPwmOutput'];
 Blockly.Python['microbit_readDigitalPin'] = Blockly.Python['microbit_pin_readDigitalPin'];
@@ -383,6 +442,9 @@ Blockly.Python['microbit_clearDisplay'] = Blockly.Python['microbit_display_clear
 Blockly.Python['microbit_lightPixelAt'] = Blockly.Python['microbit_display_lightPixelAt'];
 Blockly.Python['microbit_showOnPiexlbrightness'] = Blockly.Python['microbit_display_showOnPiexlbrightness'];
 Blockly.Python['microbit_buttonIsPressed'] = Blockly.Python['microbit_sensor_buttonIsPressed'];
+Blockly.Python['microbit_logoIsPressed'] = Blockly.Python['microbit_sensor_logoIsPressed'];
+Blockly.Python['microbit_soundLevel'] = Blockly.Python['microbit_sensor_soundLevel'];
+Blockly.Python['microbit_setSoundThreshold'] = Blockly.Python['microbit_sensor_setSoundThreshold'];
 Blockly.Python['microbit_gestureIsX'] = Blockly.Python['microbit_sensor_gestureIsX'];
 Blockly.Python['microbit_axisAcceleration'] = Blockly.Python['microbit_sensor_axisAcceleration'];
 Blockly.Python['microbit_compassAngle'] = Blockly.Python['microbit_sensor_compassAngle'];
@@ -432,6 +494,14 @@ Blockly.Python['microbit_menu_channel'] = function(block) {
   var code = Blockly.Python.microbitFieldValueFromNames_(block, ['channel', 'CH'], '0');
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
+Blockly.Python['microbit_menu_soundEvents'] = function(block) {
+  var code = Blockly.Python.microbitFieldValueFromNames_(block, ['soundEvents', 'EVENT'], 'loud');
+  return [code, Blockly.Python.ORDER_ATOMIC];
+};
+Blockly.Python['microbit_menu_logoEvents'] = function(block) {
+  var code = Blockly.Python.microbitFieldValueFromNames_(block, ['logoEvents', 'EVENT'], 'pressed');
+  return [code, Blockly.Python.ORDER_ATOMIC];
+};
 
 Blockly.Python['pin_setDigitalOutput'] = Blockly.Python['microbit_pin_setDigitalOutput'];
 Blockly.Python['pin_setPwmOutput'] = Blockly.Python['microbit_pin_setPwmOutput'];
@@ -446,6 +516,9 @@ Blockly.Python['display_clearDisplay'] = Blockly.Python['microbit_display_clearD
 Blockly.Python['display_lightPixelAt'] = Blockly.Python['microbit_display_lightPixelAt'];
 Blockly.Python['display_showOnPiexlbrightness'] = Blockly.Python['microbit_display_showOnPiexlbrightness'];
 Blockly.Python['sensor_buttonIsPressed'] = Blockly.Python['microbit_sensor_buttonIsPressed'];
+Blockly.Python['sensor_logoIsPressed'] = Blockly.Python['microbit_sensor_logoIsPressed'];
+Blockly.Python['sensor_soundLevel'] = Blockly.Python['microbit_sensor_soundLevel'];
+Blockly.Python['sensor_setSoundThreshold'] = Blockly.Python['microbit_sensor_setSoundThreshold'];
 Blockly.Python['sensor_gestureIsX'] = Blockly.Python['microbit_sensor_gestureIsX'];
 Blockly.Python['sensor_axisAcceleration'] = Blockly.Python['microbit_sensor_axisAcceleration'];
 Blockly.Python['sensor_lightLevel'] = Blockly.Python['microbit_sensor_lightLevel'];
@@ -467,6 +540,8 @@ Blockly.Python['pin_menu_touchPins'] = Blockly.Python['microbit_menu_touchPins']
 Blockly.Python['sensor_menu_keys'] = Blockly.Python['microbit_menu_keys'];
 Blockly.Python['sensor_menu_gestrues'] = Blockly.Python['microbit_menu_gestrues'];
 Blockly.Python['sensor_menu_axis'] = Blockly.Python['microbit_menu_axis'];
+Blockly.Python['sensor_menu_soundEvents'] = Blockly.Python['microbit_menu_soundEvents'];
+Blockly.Python['sensor_menu_logoEvents'] = Blockly.Python['microbit_menu_logoEvents'];
 Blockly.Python['display_menu_ledState'] = Blockly.Python['microbit_menu_ledState'];
 Blockly.Python['wireless_menu_channel'] = Blockly.Python['microbit_menu_channel'];
 
@@ -484,6 +559,9 @@ Blockly.Python['wireless_menu_channel'] = Blockly.Python['microbit_menu_channel'
   'microbit_lightPixelAt',
   'microbit_showOnPiexlbrightness',
   'microbit_buttonIsPressed',
+  'microbit_logoIsPressed',
+  'microbit_soundLevel',
+  'microbit_setSoundThreshold',
   'microbit_gestureIsX',
   'microbit_axisAcceleration',
   'microbit_lightLevel',
@@ -503,6 +581,9 @@ Blockly.Python['wireless_menu_channel'] = Blockly.Python['microbit_menu_channel'
   'microbit_display_lightPixelAt',
   'microbit_display_showOnPiexlbrightness',
   'microbit_sensor_buttonIsPressed',
+  'microbit_sensor_logoIsPressed',
+  'microbit_sensor_soundLevel',
+  'microbit_sensor_setSoundThreshold',
   'microbit_sensor_gestureIsX',
   'microbit_sensor_axisAcceleration',
   'microbit_sensor_lightLevel',
@@ -522,6 +603,9 @@ Blockly.Python['wireless_menu_channel'] = Blockly.Python['microbit_menu_channel'
   'display_lightPixelAt',
   'display_showOnPiexlbrightness',
   'sensor_buttonIsPressed',
+  'sensor_logoIsPressed',
+  'sensor_soundLevel',
+  'sensor_setSoundThreshold',
   'sensor_gestureIsX',
   'sensor_axisAcceleration',
   'sensor_lightLevel',
