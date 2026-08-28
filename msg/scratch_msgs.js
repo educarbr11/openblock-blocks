@@ -1222,7 +1222,7 @@ Blockly.ScratchMsgs.locales["zh-tw"] =
 // End of combined translations
 Blockly.ScratchMsgs.locales["pt-br"] =
 {
-    "CONTROL_FOREVER": "sempre",
+    "CONTROL_FOREVER": "fazer sempre",
     "CONTROL_REPEAT": "repita %1 vezes",
     "CONTROL_IF": "se %1 então",
     "CONTROL_ELSE": "senão",
