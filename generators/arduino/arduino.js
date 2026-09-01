@@ -235,6 +235,7 @@ Blockly.Arduino.provideSerialReadDataFunction_ = function() {
     '  while (serialPort.available() > 0) {\n' +
     '    data += (char)serialPort.read();\n' +
     '  }\n' +
+    '  data.trim();\n' +
     '  return data;\n' +
     '}\n';
 };
