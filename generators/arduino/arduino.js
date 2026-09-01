@@ -228,23 +228,10 @@ Blockly.Arduino['arduino_serial_serialReadAByte'] = function() {
   return ['Serial.read()', Blockly.Arduino.ORDER_ATOMIC];
 };
 
-Blockly.Arduino.provideSerialReadDataFunction_ = function() {
-  Blockly.Arduino.customFunctions_['dogoblock_serial_read_data'] =
-    'String dogoblockSerialReadData(Stream &serialPort) {\n' +
-    '  String data = "";\n' +
-    '  while (serialPort.available() > 0) {\n' +
-    '    data += (char)serialPort.read();\n' +
-    '  }\n' +
-    '  data.trim();\n' +
-    '  return data;\n' +
-    '}\n';
-};
-
 Blockly.Arduino['arduino_serial_serialReadData'] = function() {
   Blockly.Arduino.setups_['setup_serial_begin'] =
     Blockly.Arduino.setups_['setup_serial_begin'] || 'Serial.begin(9600);';
-  Blockly.Arduino.provideSerialReadDataFunction_();
-  return ['dogoblockSerialReadData(Serial)', Blockly.Arduino.ORDER_ATOMIC];
+  return ['Serial.read()', Blockly.Arduino.ORDER_ATOMIC];
 };
 
 Blockly.Arduino['arduino_serial_multiSerialBegin'] = function(block) {
@@ -313,8 +300,7 @@ Blockly.Arduino['arduino_serial_multiSerialReadData'] = function(block) {
   var serialName = 'Serial' + arg0;
   var setupKey = 'setup_serial' + arg0 + '_begin';
   Blockly.Arduino.setups_[setupKey] = Blockly.Arduino.setups_[setupKey] || serialName + '.begin(9600);';
-  Blockly.Arduino.provideSerialReadDataFunction_();
-  return ['dogoblockSerialReadData(' + serialName + ')', Blockly.Arduino.ORDER_ATOMIC];
+  return [serialName + '.read()', Blockly.Arduino.ORDER_ATOMIC];
 };
 
 Blockly.Arduino['arduino_data_dataMap'] = function(block) {

@@ -63,6 +63,18 @@ Blockly.Arduino['operator_compare'] = function(block) {
   var arg0 = Blockly.Arduino.valueToCode(block, 'OPERAND1', order);
   var arg1 = Blockly.Arduino.valueToCode(block, 'OPERAND2', order);
 
+  // Accept either l or 'l' in a text block when comparing serial bytes.
+  // Blockly.quote_ wraps the latter as "'l'", so unwrap it to a C++ char.
+  var normalizeExplicitCharacter = function(arg) {
+    if (arg.length === 5 && arg.charAt(0) === '"' && arg.charAt(1) === "'" &&
+        arg.charAt(3) === "'" && arg.charAt(4) === '"') {
+      return arg.slice(1, -1);
+    }
+    return arg;
+  };
+  arg0 = normalizeExplicitCharacter(arg0);
+  arg1 = normalizeExplicitCharacter(arg1);
+
   if (parseFloat(arg0.slice(1, -1)) == arg0.slice(1, -1)) { // Arg is a number
     arg0 = parseFloat(arg0.slice(1, -1)).toString();
   } else if (arg0 === "\"\"") { // Arg is a empty string

@@ -107,29 +107,6 @@ Blockly.Arduino.INDENT = '  ';
 Blockly.Arduino.firstLoop = true;
 
 /**
- * Find variables which receive text from a serial data reporter.
- * @param {!Blockly.Workspace} workspace Workspace to inspect.
- * @return {!Object<string, boolean>} Variable IDs which must use String.
- * @private
- */
-Blockly.Arduino.getSerialStringVariableIds_ = function(workspace) {
-  var stringVariableIds = Object.create(null);
-  var blocks = workspace.getAllBlocks();
-  for (var i = 0; i < blocks.length; i++) {
-    var block = blocks[i];
-    if (block.type !== 'data_setvariableto' || !Blockly.Arduino.check_(block)) {
-      continue;
-    }
-    var valueBlock = block.getInputTargetBlock('VALUE');
-    if (valueBlock && (valueBlock.type === 'arduino_serial_serialReadData' ||
-        valueBlock.type === 'arduino_serial_multiSerialReadData')) {
-      stringVariableIds[block.getFieldValue('VARIABLE')] = true;
-    }
-  }
-  return stringVariableIds;
-};
-
-/**
  * Initialise the database of variable names.
  * @param {!Blockly.Workspace} workspace Workspace to generate code from.
  */
@@ -160,15 +137,10 @@ Blockly.Arduino.init = function(workspace) {
 
   var defvars = [];
   var variables = Blockly.Variables.allVariables(workspace);
-  var serialStringVariableIds = Blockly.Arduino.getSerialStringVariableIds_(workspace);
   for (var x = 0; x < variables.length; x++) {
-    var variableId = variables[x].getId ? variables[x].getId() : variables[x].id_;
     if (variables[x].type === Blockly.LIST_VARIABLE_TYPE) {
       Blockly.Arduino.includes_["simplelist"] = "#include <SimpleList.h>";
       defvars[x] = 'SimpleList<String> ' +
-        Blockly.Arduino.variableDB_.getName(variables[x].name, Blockly.Variables.NAME_TYPE) + ';';
-    } else if (serialStringVariableIds[variableId]) {
-      defvars[x] = 'String ' +
         Blockly.Arduino.variableDB_.getName(variables[x].name, Blockly.Variables.NAME_TYPE) + ';';
     } else {
       defvars[x] = 'float ' + Blockly.Arduino.variableDB_.getName(variables[x].name, Blockly.Variables.NAME_TYPE) + ';';
